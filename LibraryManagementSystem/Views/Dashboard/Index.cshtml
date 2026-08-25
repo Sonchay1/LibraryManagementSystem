@@ -1,0 +1,406 @@
+﻿@model LibraryManagementSystem.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Library Dashboard";
+}
+
+<h2>📚 Library Management Dashboard</h2>
+
+<!-- Stats-->
+<div class="row mb-4 text-center">
+    <div class="col-md-3">
+        <div class="stat-box">
+            <h4>@Model.Books.Count</h4>
+            <p>Total Books</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-box">
+            <h4>@Model.Members.Count</h4>
+            <p>Total Members</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-box">
+            <h4>@Model.BorrowRecords.Count(b => !b.IsReturned)</h4>
+            <p>Currently Borrowed</p>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="stat-box">
+            <h4>@Model.BorrowRecords.Count(b => !b.IsReturned && b.DueDate < DateTime.Now)</h4>
+            <p>Overdue</p>
+        </div>
+    </div>
+</div>
+
+<!--Tabs Navigation-->
+<ul class="nav nav-tabs mb-3" id="dashboardTabs">
+    <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#authorsTab">Authors</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#categoriesTab">Categories</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#booksTab">Books</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#membersTab">Members</button>
+    </li>
+    <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#borrowTab">Borrow / Return</button>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <!-- AUTHORS TAB -->
+    <div class="tab-pane fade show active" id="authorsTab">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Add Author</h5>
+                <form asp-action="AddAuthor" method="post">
+                    <input type="text" name="name" class="form-control mb-2" placeholder="Author Name" required />
+                    <textarea name="bio" class="form-control mb-2" placeholder="Bio (optional)"></textarea>
+                    <button type="submit" class="btn btn-primary">Add Author</button>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <h5>All Authors</h5>
+                <table class="table table-bordered">
+                    <thead><tr><th>Name</th><th>Bio</th><th>Books</th><th>Action</th></tr></thead>
+                    <tbody>
+                        @foreach (var author in Model.Authors)
+                        {
+                            <tr>
+                                <td>@author.Name</td>
+                                <td>@author.Bio</td>
+                                <td>@author.Books.Count</td>
+                                <td>
+                                    <form asp-action="DeleteAuthor" asp-route-id="@author.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this author?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- CATEGORIES TAB-->
+    <div class="tab-pane fade" id="categoriesTab">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Add Category</h5>
+                <form asp-action="AddCategory" method="post">
+                    <input type="text" name="name" class="form-control mb-2" placeholder="Category Name" required />
+                    <button type="submit" class="btn btn-primary">Add Category</button>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <h5>All Categories</h5>
+                <ul class="list-group">
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <li class="list-group-item">@cat.Name</li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOOKS TAB -->
+    <div class="tab-pane fade" id="booksTab">
+        <div class="row">
+            <div class="col-md-4">
+                <h5>Add Book</h5>
+                <form asp-action="AddBook" method="post">
+                    <input type="text" name="title" class="form-control mb-2" placeholder="Book Title" required />
+                    <input type="text" name="isbn" class="form-control mb-2" placeholder="ISBN" />
+                    <input type="number" name="publishedYear" class="form-control mb-2" placeholder="Published Year" />
+                    <input type="number" name="totalCopies" class="form-control mb-2" placeholder="Total Copies" value="1" min="1" />
+
+                    <select name="authorId" class="form-control mb-2" required>
+                        <option value="">-- Select Author --</option>
+                        @foreach (var author in Model.Authors)
+                        {
+                            <option value="@author.Id">@author.Name</option>
+                        }
+                    </select>
+
+                    <label class="mb-1">Categories:</label><br />
+                    @foreach (var cat in Model.Categories)
+                    {
+                        <label class="me-3">
+                            <input type="checkbox" name="selectedCategories" value="@cat.Id" /> @cat.Name
+                        </label>
+                    }
+
+                    <button type="submit" class="btn btn-primary mt-3">Add Book</button>
+                </form>
+            </div>
+            <div class="col-md-8">
+                <h5>All Books</h5>
+                <table class="table table-bordered">
+                    <thead><tr><th>Title</th><th>Author</th><th>Categories</th><th>Available</th><th>Action</th></tr></thead>
+                    <tbody>
+                        @foreach (var book in Model.Books)
+                        {
+                            <tr>
+                                <td>@book.Title</td>
+                                <td>@book.Author?.Name</td>
+                                <td>@string.Join(", ", book.Categories.Select(c => c.Name))</td>
+                                <td>@book.AvailableCopies / @book.TotalCopies</td>
+                                <td>
+                                    <form asp-action="DeleteBook" asp-route-id="@book.Id" method="post" style="display:inline;">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this book?')">Delete</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+<!-- ===== MEMBERS TAB ===== -->
+<div class="tab-pane fade" id="membersTab">
+    <div class="row">
+        <div class="col-md-5">
+            <h5>Add Member</h5>
+            <form asp-action="AddMember" method="post" id="memberForm">
+                <input type="text" name="name" class="form-control mb-2" placeholder="Full Name" required />
+                <input type="email" name="email" class="form-control mb-2" placeholder="Email" required />
+                <input type="text" name="phone" class="form-control mb-2" placeholder="Phone (optional)" />
+
+               
+                <div class="border rounded p-3 mb-2">
+                    <label class="fw-bold mb-2">Member Photo</label>
+
+                    <video id="video" autoplay playsinline class="w-100 rounded mb-2" style="display:none; max-height: 250px; background: #000;"></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
+                    <img id="photoPreview" class="w-100 rounded mb-2" style="display:none; max-height: 250px; object-fit: cover;" />
+
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" id="startCamera" class="btn btn-outline-primary btn-sm">📷 Start Camera</button>
+                        <button type="button" id="stopCamera" class="btn btn-outline-danger btn-sm" style="display:none;">⏹ Stop Camera</button>
+                        <button type="button" id="switchCamera" class="btn btn-outline-secondary btn-sm" style="display:none;">🔄 Switch Camera</button>
+                        <button type="button" id="capturePhoto" class="btn btn-success btn-sm" style="display:none;">✅ Capture</button>
+                        <button type="button" id="retakePhoto" class="btn btn-secondary btn-sm" style="display:none;">🔄 Retake</button>
+                    </div>
+
+                  
+                    <input type="hidden" name="photoBase64" id="photoBase64" />
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Member</button>
+            </form>
+        </div>
+
+        <div class="col-md-7">
+            <h5>All Members</h5>
+            <table class="table table-bordered">
+                <thead><tr><th>Photo</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+                <tbody>
+                    @foreach (var member in Model.Members)
+                    {
+                        <tr>
+                            <td>
+                                @if (member.PhotoBytes != null && member.PhotoBytes.Length > 0)
+                                {
+                                    <img src="@Url.Action("MemberPhoto", new { id = member.Id })" style="width:50px; height:50px; object-fit:cover; border-radius:50%;" />
+                                }
+                                else
+                                {
+                                    <span>—</span>
+                                }
+                            </td>
+                            <td>@member.Name</td>
+                            <td>@member.Email</td>
+                            <td>@member.Phone</td>
+                            <td>
+                                <form asp-action="DeleteMember" asp-route-id="@member.Id" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this member?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+  
+    <!--BORROW/RETURN TAB  -->
+    <div class="tab-pane fade" id="borrowTab">
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <h5>Borrow a Book</h5>
+                <form asp-action="BorrowBook" method="post">
+                    <select name="bookId" class="form-control mb-2" required>
+                        <option value="">-- Select Book --</option>
+                        @foreach (var book in Model.Books.Where(b => b.AvailableCopies > 0))
+                        {
+                            <option value="@book.Id">@book.Title (@book.AvailableCopies available)</option>
+                        }
+                    </select>
+
+                    <select name="memberId" class="form-control mb-2" required>
+                        <option value="">-- Select Member --</option>
+                        @foreach (var member in Model.Members)
+                        {
+                            <option value="@member.Id">@member.Name</option>
+                        }
+                    </select>
+
+                    <button type="submit" class="btn btn-primary">Borrow</button>
+                </form>
+            </div>
+        </div>
+
+        <h5>All Borrow Records</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr><th>Book</th><th>Member</th><th>Borrow Date</th><th>Due Date</th><th>Status</th><th>Fine</th><th>Action</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var record in Model.BorrowRecords)
+                {
+                    <tr>
+                        <td>@record.Book?.Title</td>
+                        <td>@record.Member?.Name</td>
+                        <td>@record.BorrowDate.ToString("dd MMM yyyy")</td>
+                        <td>@record.DueDate.ToString("dd MMM yyyy")</td>
+                        <td>
+                            @if (record.IsReturned)
+                            {
+                                <span class="badge bg-success">Returned</span>
+                            }
+                            else if (record.DueDate < DateTime.Now)
+                            {
+                                <span class="badge bg-danger">Overdue</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Borrowed</span>
+                            }
+                        </td>
+                        <td>@(record.FineAmount > 0 ? $"৳{record.FineAmount}" : "-")</td>
+                        <td>
+                            @if (!record.IsReturned)
+                            {
+                                <form asp-action="ReturnBook" asp-route-id="@record.Id" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-sm btn-success">Return</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts {
+<script>
+    let stream = null;
+    let currentFacingMode = "environment";
+
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const photoPreview = document.getElementById('photoPreview');
+    const photoBase64Input = document.getElementById('photoBase64');
+
+    const startCameraBtn = document.getElementById('startCamera');
+    const stopCameraBtn = document.getElementById('stopCamera');
+    const switchCameraBtn = document.getElementById('switchCamera');
+    const capturePhotoBtn = document.getElementById('capturePhoto');
+    const retakePhotoBtn = document.getElementById('retakePhoto');
+
+    
+    async function openCamera(facingMode) {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: facingMode } },
+                audio: false
+            });
+
+            video.srcObject = stream;
+            video.style.display = 'block';
+            startCameraBtn.style.display = 'none';
+            stopCameraBtn.style.display = 'inline-block';
+            switchCameraBtn.style.display = 'inline-block';
+            capturePhotoBtn.style.display = 'inline-block';
+            photoPreview.style.display = 'none';
+        } catch (err) {
+            alert('Dont acess camera: ' + err.message);
+            console.error('Camera error:', err);
+        }
+    }
+
+   
+    function closeCamera() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+        video.style.display = 'none';
+        video.srcObject = null;
+
+        startCameraBtn.style.display = 'inline-block';
+        stopCameraBtn.style.display = 'none';
+        switchCameraBtn.style.display = 'none';
+        capturePhotoBtn.style.display = 'none';
+    }
+
+    startCameraBtn.addEventListener('click', () => {
+        openCamera(currentFacingMode);
+    });
+
+    
+    stopCameraBtn.addEventListener('click', () => {
+        closeCamera();
+    });
+
+    switchCameraBtn.addEventListener('click', () => {
+        currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+        openCamera(currentFacingMode);
+    });
+
+    capturePhotoBtn.addEventListener('click', () => {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        
+        const fullDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+
+        
+        const pureBase64 = fullDataUrl.split(',')[1];
+
+        photoBase64Input.value = pureBase64;
+        photoPreview.src = fullDataUrl; 
+        photoPreview.style.display = 'block';
+
+        closeCamera(); 
+        retakePhotoBtn.style.display = 'inline-block';
+    });
+
+    retakePhotoBtn.addEventListener('click', () => {
+        photoPreview.style.display = 'none';
+        retakePhotoBtn.style.display = 'none';
+        photoBase64Input.value = '';
+        startCameraBtn.style.display = 'inline-block';
+    });
+</script>
+}

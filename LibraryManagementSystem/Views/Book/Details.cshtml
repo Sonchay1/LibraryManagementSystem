@@ -1,0 +1,28 @@
+﻿@model LibraryManagementSystem.Models.Book
+
+<h2>@Model.Title</h2>
+<p><strong>Author:</strong> @Model.Author?.Name</p>
+<p><strong>ISBN:</strong> @Model.ISBN</p>
+<p><strong>Published:</strong> @Model.PublishedYear</p>
+<p><strong>Categories:</strong> @string.Join(", ", Model.Categories.Select(c => c.Name))</p>
+<p><strong>Available:</strong> @Model.AvailableCopies / @Model.TotalCopies</p>
+
+<h4>Borrow History</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr><th>Member</th><th>Borrow Date</th><th>Due Date</th><th>Returned</th></tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model.BorrowRecords)
+        {
+            <tr>
+                <td>@record.Member?.Name</td>
+                <td>@record.BorrowDate.ToString("dd MMM yyyy")</td>
+                <td>@record.DueDate.ToString("dd MMM yyyy")</td>
+                <td>@(record.IsReturned ? "Yes" : "No")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

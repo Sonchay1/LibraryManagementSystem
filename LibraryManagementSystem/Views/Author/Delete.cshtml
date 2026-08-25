@@ -1,0 +1,10 @@
+﻿@model LibraryManagementSystem.Models.Author
+
+<h2>Delete Author</h2>
+<p>তুমি কি নিশ্চিত "@Model.Name" ডিলিট করতে চাও?</p>
+
+<form asp-action="Delete">
+    <input type="hidden" asp-for="Id" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

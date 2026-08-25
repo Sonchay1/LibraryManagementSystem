@@ -1,0 +1,52 @@
+﻿@model IEnumerable<LibraryManagementSystem.Models.BorrowRecord>
+
+<h2>Borrow Records</h2>
+<a asp-action="Create" class="btn btn-primary mb-3">+ Borrow a Book</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Book</th>
+            <th>Member</th>
+            <th>Borrow Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Fine</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var record in Model)
+        {
+            <tr>
+                <td>@record.Book?.Title</td>
+                <td>@record.Member?.Name</td>
+                <td>@record.BorrowDate.ToString("dd MMM yyyy")</td>
+                <td>@record.DueDate.ToString("dd MMM yyyy")</td>
+                <td>
+                    @if (record.IsReturned)
+                    {
+                        <span class="badge bg-success">Returned</span>
+                    }
+                    else if (record.DueDate < DateTime.Now)
+                    {
+                        <span class="badge bg-danger">Overdue</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-warning text-dark">Borrowed</span>
+                    }
+                </td>
+                <td>@(record.FineAmount > 0 ? $"৳{record.FineAmount}" : "-")</td>
+                <td>
+                    @if (!record.IsReturned)
+                    {
+                        <form asp-action="ReturnBook" asp-route-id="@record.Id" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-success">Return</button>
+                        </form>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

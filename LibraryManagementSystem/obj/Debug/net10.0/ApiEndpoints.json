@@ -1,0 +1,81 @@
+[
+  {
+    "ContainingType": "LibraryManagementSystem.Controllers.BookApiController",
+    "Method": "GetAll",
+    "RelativePath": "api/BookApi",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagementSystem.Controllers.BookApiController",
+    "Method": "Create",
+    "RelativePath": "api/BookApi",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "dto",
+        "Type": "LibraryManagementSystem.Controllers.BookCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagementSystem.Controllers.BookApiController",
+    "Method": "GetById",
+    "RelativePath": "api/BookApi/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagementSystem.Controllers.BookApiController",
+    "Method": "Update",
+    "RelativePath": "api/BookApi/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "dto",
+        "Type": "LibraryManagementSystem.Controllers.BookCreateDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LibraryManagementSystem.Controllers.BookApiController",
+    "Method": "Delete",
+    "RelativePath": "api/BookApi/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
